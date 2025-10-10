@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Configurar Contatos Permitidos</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+    }
+
+    button {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Contatos Permitidos</h2>
+  <p>Insira um nome por linha:</p>
+  <textarea id="contacts"></textarea>
+  <div style="margin-top: 1rem;">
+    <label>
+      <input type="checkbox" id="showMessages" />
+      Exibir mensagens personalizadas
+    </label>
+  </div>
+  <br />
+  <button onclick="save()">Salvar</button>
+  <script>
+    (function () {
+      window.electronAPI.loadConfig().then(data => {
+        document.getElementById('contacts').value = data.join('\n');
+      });
+
+      window.electronAPI.loadSettings().then(flag => {
+        document.getElementById('showMessages').checked = flag;
+      });
+    })()
+
+    function save() {
+      const raw = document.getElementById('contacts').value;
+      const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
+      const showMessages = document.getElementById('showMessages').checked;
+
+      window.electronAPI.saveConfig(lines);
+      window.electronAPI.saveSettings(showMessages);
+
+      alert('Configurações salvas!');
+    }
+  </script>
+</body>
+
+</html>
