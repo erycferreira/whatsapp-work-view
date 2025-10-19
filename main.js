@@ -74,7 +74,7 @@ function injectFilterScript() {
   const code = fs.readFileSync(injectPath, 'utf8');
   const allowedChats = getAllowedChats();
   const showMessages = showCustomMessages();
-  const finalCode = code.replace('/*__ALLOWED__*/', JSON.stringify(allowedChats)).replace('/*__SHOW_MESSAGES__*/', showMessages ? 'true' : 'false');;
+  const finalCode = code.replaceAll('/*__ALLOWED__*/', JSON.stringify(allowedChats)).replace('/*__SHOW_MESSAGES__*/', showMessages ? 'true' : 'false');
 
   win.webContents.executeJavaScript(finalCode).catch(console.error);
 }

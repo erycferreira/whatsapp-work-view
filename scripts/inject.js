@@ -49,6 +49,28 @@ function getRandomMessage(theme = 'DEV') {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+(function interceptNotifications() {
+  const allowed = /*__ALLOWED__*/;
+  const OriginalNotification = window.Notification;
+
+  window.Notification = function (title, options) {
+    const allowNotifications = window.localStorage.getItem('allowNotifications') === 'true';
+
+    if (!allowNotifications) {
+      if (!allowed.some(name => title.includes(name))) {
+        console.log('[WWV] Notificação bloqueada:', title);
+        return null;
+      }
+    }
+
+    return new OriginalNotification(title, options);
+  };
+
+  window.Notification.prototype = OriginalNotification.prototype;
+  window.Notification.permission = OriginalNotification.permission;
+  window.Notification.requestPermission = OriginalNotification.requestPermission.bind(OriginalNotification);
+})();
+
 (() => {
   const allowed = /*__ALLOWED__*/;
   const SHOW_MESSAGES = /*__SHOW_MESSAGES__*/;
