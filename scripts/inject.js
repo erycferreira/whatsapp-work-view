@@ -102,7 +102,10 @@ function getRandomMessage(theme = 'DEV') {
   }
 
   function hideUnwantedChats() {
-    const items = document.querySelectorAll("[aria-label='Lista de conversas']>[role=row]");
+    const list = document.querySelector("[aria-label='Lista de conversas']");
+    const items = list?.querySelectorAll(":scope > [role=row]");
+    if (!items) return;
+
     let i = 0;
     items.forEach((el) => {
       const name = el.textContent.trim();
@@ -111,10 +114,18 @@ function getRandomMessage(theme = 'DEV') {
         el.style.transform = '';
       } else {
         el.style.display = "";
-        el.style.transform = `translateY(${76 * i}px)`;
-        i++;
+        el.style.transform = `translateY(${76 * i++}px)`;
       }
     });
+
+    if (list) {
+      list.style.willChange = "transform";
+      list.style.transform = "translateZ(0)";
+      requestAnimationFrame(() => {
+        list.style.willChange = "";
+        list.style.transform = "";
+      });
+    }
   }
 
   function updateVisibleMessages() {
