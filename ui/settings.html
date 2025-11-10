@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Configurar Contatos Permitidos</title>
+  <title>Configurações</title>
   <style>
     body {
       font-family: sans-serif;
@@ -31,6 +31,12 @@
       Exibir mensagens personalizadas
     </label>
   </div>
+  <div style="margin-top: 1rem;">
+    <label>
+      <input type="color" id="chatColor" />
+      Cor dos chats
+    </label>
+  </div>
   <br />
   <button onclick="save()">Salvar</button>
   <script>
@@ -39,20 +45,22 @@
         document.getElementById('contacts').value = data.join('\n');
       });
 
-      window.electronAPI.loadSettings().then(flag => {
-        document.getElementById('showMessages').checked = flag;
+      window.electronAPI.loadSettings().then(config => {
+        document.getElementById('showMessages').checked = config.showMessages;
+        document.getElementById('chatColor').value = config.chatColor;
       });
     })()
 
     function save() {
       const raw = document.getElementById('contacts').value;
+      const chatColor = document.getElementById('chatColor').value;
       const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
       const showMessages = document.getElementById('showMessages').checked;
 
       window.electronAPI.saveConfig(lines);
-      window.electronAPI.saveSettings(showMessages);
+      window.electronAPI.saveSettings({ chatColor, showMessages });
 
-      alert('Configurações salvas!');
+      alert('Configurações salvas!\nPara as alterações entrar em vigor será necessário reinciar o aplicativo');
     }
   </script>
 </body>

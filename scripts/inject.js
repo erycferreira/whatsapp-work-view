@@ -73,7 +73,7 @@ function getRandomMessage(theme = 'DEV') {
 
 (() => {
   const allowed = /*__ALLOWED__*/;
-  const SHOW_MESSAGES = /*__SHOW_MESSAGES__*/;
+  const config = /*__CONFIG__*/;
 
   function updateStartPage() {
     const target = document.querySelector("[class='xktia5q x27kpxv x135pmgq x2b8uid']");
@@ -126,10 +126,17 @@ function getRandomMessage(theme = 'DEV') {
         list.style.transform = "";
       });
     }
+
+    const ballons = document.querySelectorAll(".message-in ._amk6");
+    if (!ballons || !config?.chatColor) return;
+
+    ballons.forEach((el) => {
+      el.style.backgroundColor = config.chatColor;
+    });
   }
 
   function updateVisibleMessages() {
-    if (SHOW_MESSAGES) {
+    if (config.showMessages) {
       document.querySelectorAll('div._ak8k').forEach(el => {
         const message = getRandomMessage();
 

@@ -22,7 +22,17 @@ function showCustomMessages() {
     const showMessages = db.prepare('SELECT value FROM app_config WHERE key = ?').get('show_custom_messages')?.value === 'true';
     return showMessages;
   } catch (err) {
-    console.error('[DB] Falha ao ler allowed_chats', err);
+    console.error('[DB] Falha ao ler show_custom_messages', err);
+    return false;
+  }
+}
+
+function changeColorChat() {
+  try {
+    const chatColor = db.prepare('SELECT value FROM app_config WHERE key = ?').get('chat_color')?.value;
+    return chatColor;
+  } catch (err) {
+    console.error('[DB] Falha ao ler chat_color', err);
     return false;
   }
 }
@@ -74,7 +84,10 @@ function injectFilterScript() {
   const code = fs.readFileSync(injectPath, 'utf8');
   const allowedChats = getAllowedChats();
   const showMessages = showCustomMessages();
-  const finalCode = code.replaceAll('/*__ALLOWED__*/', JSON.stringify(allowedChats)).replace('/*__SHOW_MESSAGES__*/', showMessages ? 'true' : 'false');
+  const chatColor = changeColorChat();
+  const finalCode = code
+    .replaceAll('/*__ALLOWED__*/', JSON.stringify(allowedChats))
+    .replace('/*__CONFIG__*/', JSON.stringify({ showMessages, chatColor }));
 
   win.webContents.executeJavaScript(finalCode).catch(console.error);
 }
@@ -84,11 +97,11 @@ const template = [
     label: "Menu",
     submenu: [
       {
-        label: "Contatos",
+        label: "Configuração",
         click: () => {
           const settingsWin = new BrowserWindow({
             width: 500,
-            height: 500,
+            height: 550,
             autoHideMenuBar: true,
             webPreferences: {
               preload: path.join(__dirname, 'preload.js'),
@@ -102,7 +115,7 @@ const template = [
         }
       },
       {
-        label: "Dev",
+        label: "Devtools",
         click: () => win.webContents.openDevTools()
       }
     ]
@@ -112,15 +125,14 @@ const template = [
 ipcMain.handle('load-config', async () => getAllowedChats());
 ipcMain.handle('load-settings', async () => {
   const row = db.prepare('SELECT value FROM app_config WHERE key = ?').get('show_custom_messages');
-  return row ? row.value === 'true' : true;
+  const colors = db.prepare('SELECT value FROM app_config WHERE key = ?').get('chat_color');
+  return { showMessages: row ? row.value === 'true' : true, chatColor: colors?.value };
 });
 
 ipcMain.on('save-config', (event, contacts) => setAllowedChats(contacts));
-ipcMain.on('save-settings', (event, showMessages) => {
-  db.prepare('INSERT OR REPLACE INTO app_config (key, value) VALUES (?, ?)').run(
-    'show_custom_messages',
-    showMessages ? 'true' : 'false'
-  );
+ipcMain.on('save-settings', (event, { showMessages, chatColor }) => {
+  db.prepare('INSERT OR REPLACE INTO app_config (key, value) VALUES (?, ?)').run('show_custom_messages', showMessages ? 'true' : 'false');
+  db.prepare('INSERT OR REPLACE INTO app_config (key, value) VALUES (?, ?)').run('chat_color', chatColor);
 });
 
 ipcMain.on('open-external', (event, url) => {
