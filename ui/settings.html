@@ -32,9 +32,14 @@
     </label>
   </div>
   <div style="margin-top: 1rem;">
+    <h2>Cor do chat</h2>
     <label>
       <input type="color" id="chatColor" />
-      Cor dos chats
+      Balões
+    </label>
+    <label>
+      <input type="color" id="textChatColor" />
+      Texto
     </label>
   </div>
   <br />
@@ -47,13 +52,18 @@
 
       window.electronAPI.loadSettings().then(config => {
         document.getElementById('showMessages').checked = config.showMessages;
-        document.getElementById('chatColor').value = config.chatColor;
+
+        const chatColor = config?.chatColor?.split('|');
+        if (chatColor?.length) {
+          document.getElementById('chatColor').value = chatColor[0];
+          document.getElementById('textChatColor').value = chatColor[1];
+        }
       });
     })()
 
     function save() {
       const raw = document.getElementById('contacts').value;
-      const chatColor = document.getElementById('chatColor').value;
+      const chatColor = document.getElementById('chatColor').value + '|' + document.getElementById('textChatColor').value;
       const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
       const showMessages = document.getElementById('showMessages').checked;
 

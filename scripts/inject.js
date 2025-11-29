@@ -111,9 +111,9 @@ function getRandomMessage(theme = 'DEV') {
       const name = el.textContent.trim();
       if (!allowed.some(n => name.includes(n))) {
         el.style.display = "none";
-        el.style.transform = '';
+        el.style.transform = 'translateY(-76px)';
       } else {
-        el.style.display = "";
+        el.style.display = "block";
         el.style.transform = `translateY(${76 * i++}px)`;
       }
     });
@@ -130,9 +130,13 @@ function getRandomMessage(theme = 'DEV') {
     const ballons = document.querySelectorAll(".message-in ._amk6");
     if (!ballons || !config?.chatColor) return;
 
-    ballons.forEach((el) => {
-      el.style.backgroundColor = config.chatColor;
-    });
+    const chatColor = config.chatColor.split('|');
+    if (chatColor?.length >= 2) {
+      ballons.forEach((el) => {
+        el.style.backgroundColor = chatColor[0];
+        el.style.color = chatColor[1];
+      });
+    }
   }
 
   function updateVisibleMessages() {

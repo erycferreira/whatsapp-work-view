@@ -63,7 +63,7 @@ function createWindow() {
   });
 
   win.loadURL('https://web.whatsapp.com', {
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+    userAgent: 'WhatsApp/2.25.30.11 Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
   });
 
   win.webContents.on('did-finish-load', () => {
@@ -101,7 +101,7 @@ const template = [
         click: () => {
           const settingsWin = new BrowserWindow({
             width: 500,
-            height: 550,
+            height: 600,
             autoHideMenuBar: true,
             webPreferences: {
               preload: path.join(__dirname, 'preload.js'),
