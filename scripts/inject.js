@@ -128,6 +128,7 @@ function getRandomMessage(theme = 'DEV') {
     }
 
     const ballons = document.querySelectorAll(".message-in ._amk6");
+    const optBallons = document.querySelectorAll(".message-in .x1n92vqa");
     if (!ballons || !config?.chatColor) return;
 
     const chatColor = config.chatColor.split('|');
@@ -135,6 +136,10 @@ function getRandomMessage(theme = 'DEV') {
       ballons.forEach((el) => {
         el.style.backgroundColor = chatColor[0];
         el.style.color = chatColor[1];
+      });
+
+      optBallons.forEach((el) => {
+        el.style.background = `radial-gradient(at top right, rgba(${chatColor[0]}, 1) 60%, rgba(var(--WDS-systems-bubble-surface-incoming-RGB), 0) 80%)`
       });
     }
   }
