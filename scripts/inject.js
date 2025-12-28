@@ -38,6 +38,17 @@ const MESSAGES_VENDAS = [
   "O zap que fecha negócio 💼"
 ];
 
+const css = `
+  .blur-overlay {
+    inset: 0;
+    filter: blur(13px);
+    transition: .15s filter linear;
+  }
+  .blur-overlay:hover {
+    filter: blur(0px);
+  }
+`;
+
 // Escolha aleatória de acordo com tema
 function getRandomMessage(theme = 'DEV') {
   let arr;
@@ -76,6 +87,13 @@ function getRandomMessage(theme = 'DEV') {
   const config = /*__CONFIG__*/;
 
   function updateStartPage() {
+    if (!document.getElementById('blur-style')) {
+      const style = document.createElement('style');
+      style.id = 'blur-style';
+      style.textContent = css;
+      document.head.appendChild(style);
+    }
+
     const target = document.querySelector("[class='xktia5q x27kpxv x135pmgq x2b8uid']");
 
     if (!target) return;
@@ -106,26 +124,12 @@ function getRandomMessage(theme = 'DEV') {
     const items = list?.querySelectorAll(":scope > [role=row]");
     if (!items) return;
 
-    let i = 0;
     items.forEach((el) => {
       const name = el.textContent.trim();
       if (!allowed.some(n => name.includes(n))) {
-        el.style.display = "none";
-        el.style.transform = 'translateY(-76px)';
-      } else {
-        el.style.display = "block";
-        el.style.transform = `translateY(${76 * i++}px)`;
+        el.classList.add('blur-overlay');
       }
     });
-
-    if (list) {
-      list.style.willChange = "transform";
-      list.style.transform = "translateZ(0)";
-      requestAnimationFrame(() => {
-        list.style.willChange = "";
-        list.style.transform = "";
-      });
-    }
 
     const ballons = document.querySelectorAll(".message-in ._amk6");
     const optBallons = document.querySelectorAll(".message-in .x1n92vqa");
@@ -157,11 +161,28 @@ function getRandomMessage(theme = 'DEV') {
     }
   }
 
+  function blurMessages() {
+    const main = document.querySelector('#main');
+    const header = main?.querySelector('header');
+
+    if (!main || !header) return;
+
+    const headerName = header.textContent.trim();
+    const shouldBlur = !allowed.some(n => headerName.includes(n));
+
+    if (shouldBlur) {
+      [...document.querySelectorAll('.message-in'), ...document.querySelectorAll('.message-out')].forEach((el) => {
+        el.classList.add('blur-overlay');
+      });
+    }
+  }
+
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       if (mutation.addedNodes.length) {
         hideUnwantedChats();
         updateVisibleMessages();
+        blurMessages();
 
         if (document.querySelector("[class='xktia5q x27kpxv x135pmgq x2b8uid']")) {
           updateStartPage();
@@ -175,4 +196,5 @@ function getRandomMessage(theme = 'DEV') {
   hideUnwantedChats();
   updateStartPage();
   updateVisibleMessages();
+  blurMessages();
 })();
