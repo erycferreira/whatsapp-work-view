@@ -22,6 +22,18 @@
 </head>
 
 <body>
+  <div style="margin-top: 1rem;">
+    <h2>Pagina inicial</h2>
+    <label>
+      Titulo
+      <input type="text" id="title" />
+    </label>
+    <br />
+    <label>
+      Subtitulo
+      <input type="text" id="subtitle" />
+    </label>
+  </div>
   <h2>Contatos Permitidos</h2>
   <p>Insira um nome por linha:</p>
   <textarea id="contacts"></textarea>
@@ -51,6 +63,11 @@
       });
 
       window.electronAPI.loadSettings().then(config => {
+        const homeTitles = config?.homeTitles?.split('|');
+        if (homeTitles?.length) {
+          document.getElementById('title').value = homeTitles[0];
+          document.getElementById('subtitle').value = homeTitles[1];
+        }
         document.getElementById('showMessages').checked = config.showMessages;
 
         const chatColor = config?.chatColor?.split('|');
@@ -64,11 +81,12 @@
     function save() {
       const raw = document.getElementById('contacts').value;
       const chatColor = document.getElementById('chatColor').value + '|' + document.getElementById('textChatColor').value;
+      const homeTitles = document.getElementById('title').value + '|' + document.getElementById('subtitle').value;
       const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
       const showMessages = document.getElementById('showMessages').checked;
 
       window.electronAPI.saveConfig(lines);
-      window.electronAPI.saveSettings({ chatColor, showMessages });
+      window.electronAPI.saveSettings({ chatColor, showMessages, homeTitles });
 
       alert('Configurações salvas!\nPara as alterações entrar em vigor será necessário reinciar o aplicativo');
     }

@@ -26,5 +26,9 @@ const hasFlag = db.prepare('SELECT value FROM app_config WHERE key = ?').get('sh
 if (!hasFlag) {
   db.prepare('INSERT INTO app_config (key, value) VALUES (?, ?)').run('show_custom_messages', 'true');
 }
+const hasHomeTitles = db.prepare('SELECT value FROM app_config WHERE key = ?').get('home_titles');
+if (!hasHomeTitles) {
+  db.prepare('INSERT INTO app_config (key, value) VALUES (?, ?)').run('home_titles', 'WWV Para Windows|Whatsapp Work View, você mantem a privacidade dos seus chat.');
+}
 
 module.exports = db;

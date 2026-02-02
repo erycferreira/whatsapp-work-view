@@ -27,6 +27,16 @@ function showCustomMessages() {
   }
 }
 
+function getHomeTitles() {
+  try {
+    const homeTitles = db.prepare('SELECT value FROM app_config WHERE key = ?').get('home_titles')?.value;
+    return homeTitles;
+  } catch (err) {
+    console.error('[DB] Falha ao ler home_titles', err);
+    return false;
+  }
+}
+
 function changeColorChat() {
   try {
     const chatColor = db.prepare('SELECT value FROM app_config WHERE key = ?').get('chat_color')?.value;
@@ -83,11 +93,12 @@ function injectFilterScript() {
   const injectPath = path.join(__dirname, 'scripts/inject.js');
   const code = fs.readFileSync(injectPath, 'utf8');
   const allowedChats = getAllowedChats();
+  const homeTitles = getHomeTitles();
   const showMessages = showCustomMessages();
   const chatColor = changeColorChat();
   const finalCode = code
     .replaceAll('/*__ALLOWED__*/', JSON.stringify(allowedChats))
-    .replace('/*__CONFIG__*/', JSON.stringify({ showMessages, chatColor }));
+    .replace('/*__CONFIG__*/', JSON.stringify({ showMessages, chatColor, homeTitles }));
 
   win.webContents.executeJavaScript(finalCode).catch(console.error);
 }
@@ -126,13 +137,15 @@ ipcMain.handle('load-config', async () => getAllowedChats());
 ipcMain.handle('load-settings', async () => {
   const row = db.prepare('SELECT value FROM app_config WHERE key = ?').get('show_custom_messages');
   const colors = db.prepare('SELECT value FROM app_config WHERE key = ?').get('chat_color');
-  return { showMessages: row ? row.value === 'true' : true, chatColor: colors?.value };
+  const homeTitles = db.prepare('SELECT value FROM app_config WHERE key = ?').get('home_titles');
+  return { showMessages: row ? row.value === 'true' : true, chatColor: colors?.value, homeTitles: homeTitles?.value  };
 });
 
 ipcMain.on('save-config', (event, contacts) => setAllowedChats(contacts));
-ipcMain.on('save-settings', (event, { showMessages, chatColor }) => {
+ipcMain.on('save-settings', (event, { showMessages, chatColor, homeTitles }) => {
   db.prepare('INSERT OR REPLACE INTO app_config (key, value) VALUES (?, ?)').run('show_custom_messages', showMessages ? 'true' : 'false');
   db.prepare('INSERT OR REPLACE INTO app_config (key, value) VALUES (?, ?)').run('chat_color', chatColor);
+  db.prepare('INSERT OR REPLACE INTO app_config (key, value) VALUES (?, ?)').run('home_titles', homeTitles);
 });
 
 ipcMain.on('open-external', (event, url) => {
